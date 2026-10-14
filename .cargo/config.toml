@@ -1,0 +1,23 @@
+# Per-target tuning. Every release binary is built NATIVELY on its own
+# runner (no cross-compilation), so these flags only ever apply to the
+# target they name. Supported targets:
+#   aarch64-apple-darwin  (macOS Apple Silicon, built on macos-14)
+#   x86_64-unknown-linux-gnu (Linux x86_64, built on ubuntu-24.04)
+#   aarch64-unknown-linux-gnu (Linux ARM64, built on ubuntu-24.04-arm)
+
+[target.aarch64-apple-darwin]
+rustflags = [
+    "-C", "target-cpu=apple-m1",
+    "-C", "link-arg=-dead_strip",
+]
+
+[target.x86_64-unknown-linux-gnu]
+rustflags = [
+    # Baseline x86-64: the binary must run on ANY 64-bit Intel/AMD CPU,
+    # including older ones without AVX2. Never raise this to x86-64-v3
+    # without also renaming the release artifact.
+    "-C", "target-cpu=x86-64",
+]
+
+# aarch64-unknown-linux-gnu intentionally uses rustc defaults (generic
+# ARMv8-A): portable across Raspberry Pi, AWS Graviton, Ampere Altra, etc.

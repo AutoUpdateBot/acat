@@ -1,0 +1,51 @@
+[package]
+name = "acat"
+version = "0.2.0"
+edition = "2021"
+description = "Ultra-lightweight syntax-highlighted cat replacement for macOS (ARM64) and 64-bit Linux (x86_64, ARM64)"
+license = "MIT"
+repository = "https://github.com/AutoUpdateBot/acat"
+keywords = ["cat", "syntax-highlighting", "cli", "macos", "linux", "arm64"]
+categories = ["command-line-utilities"]
+rust-version = "1.70"
+
+# Language knowledge comes 100% from libraries, compiled into the binary:
+# syntect (75 Sublime Text grammars) + two-face (145 extra grammars bat
+# relies on: TypeScript, Docker, TOML, PowerShell, Zig, Vue, …).
+# Aggressive-optimization choices, all measured:
+# * default-features OFF everywhere: no `html`, no `plist-load`/
+#   `yaml-load` (dumps are prebuilt), no `dump-create`, no two-face themes.
+#   Only parsing + dumps + ONE regex engine.
+# * `regex-onig` (C Oniguruma), NOT `regex-fancy`: measured 1.23 MB vs
+#   2.07 MB binary and 4x faster highlighting with identical output.
+#   Onig needs only the C compiler that linking Rust already requires,
+#   and every release leg builds natively (no cross-compilation).
+# * All 220 syntaxes + 7 themes are `include_bytes!` dumps: zero
+#   filesystem reads, zero network access, ever. Decompressed once
+#   per invocation behind a lock-free OnceLock (~8 ms), then streaming.
+
+[dependencies]
+syntect = { version = "5", default-features = false, features = [
+    "parsing",
+    "default-themes",
+    "dump-load",
+    "regex-onig",
+] }
+two-face = { version = "0.5", default-features = false, features = ["syntect-onig"] }
+
+[profile.release]
+# --- Extreme size optimization (applies to every release target) ---
+opt-level = "z"        # optimize for size (lexer throughput is still 4x headroom)
+lto = true             # full link-time optimization across syntect too
+codegen-units = 1      # single unit: maximal inline/merge + dead-code elimination
+strip = true           # strip symbols (equivalent to `strip -x` on macOS)
+panic = "abort"        # no unwinding tables/personality routines
+overflow-checks = false
+debug = false
+debug-assertions = false
+incremental = false
+rpath = false
+
+[profile.dev]
+opt-level = 0
+debug = true

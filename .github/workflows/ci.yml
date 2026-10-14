@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    name: Test + functional check (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        # Native builds on both major OSes; the source is fully portable.
+        os: [ubuntu-latest, macos-14]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Install Rust (stable, minimal)
+        uses: dtolnay/rust-toolchain@d1031067263f94b142dd6c0ce24c5eb9d02d52a0 # master
+        with:
+          toolchain: stable
+
+      - name: Unit tests (lexer, CLI parsing)
+        run: cargo test --locked --all-targets
+
+      - name: Release build (size-optimized profile)
+        run: cargo build --locked --release
+
+      - name: Functional smoke test (no TTY => use --color=always)
+        shell: bash
+        run: |
+          printf 'fn main() {\n    let s = "hi"; // greet\n}\n' > /tmp/demo.rs
+          ./target/release/acat --color=always /tmp/demo.rs | grep -Fq '38;2;'
+          ./target/release/acat --color=always /tmp/demo.rs | grep -Fq $'mfn\x1b[0m'
+          printf 'const x: number = 1;\n' > /tmp/demo.ts
+          ./target/release/acat --color=always /tmp/demo.ts | grep -Fq '38;2;'
+          printf 'a\n\n\nb\n' | ./target/release/acat -s - | grep -c . | grep -q 2
+          ./target/release/acat --version
+          ls -lh target/release/acat
