@@ -65,9 +65,9 @@ acat --help
 
 | OS | Arch | Target triple | Built on |
 |----|------|---------------|----------|
-| macOS (Apple Silicon) | ARM64 | `aarch64-apple-darwin` | `macos-14` |
-| Linux | x86_64 (baseline, runs on any 64-bit Intel/AMD CPU) | `x86_64-unknown-linux-gnu` | `ubuntu-24.04` |
-| Linux | ARM64 (Pi, Graviton, Ampere…) | `aarch64-unknown-linux-gnu` | `ubuntu-24.04-arm` |
+| macOS (Apple Silicon) | ARM64 | `aarch64-apple-darwin` | `macos-latest` |
+| Linux | x86_64 (baseline, runs on any 64-bit Intel/AMD CPU) | `x86_64-unknown-linux-gnu` | `ubuntu-latest` |
+| Linux | ARM64 (Pi, Graviton, Ampere…) | `aarch64-unknown-linux-gnu` | `ubuntu-26.04-arm` |
 
 ## Release
 

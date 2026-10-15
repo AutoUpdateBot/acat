@@ -1,14 +1,5 @@
 name: Release (macOS ARM64 + Linux x86_64 + Linux ARM64)
 
-# Builds a NATIVE binary per platform/arch and publishes all of them to
-# GitHub Releases. Each leg runs on its own hardware — no cross-compilation:
-#   macos-14        -> aarch64-apple-darwin
-#   ubuntu-24.04    -> x86_64-unknown-linux-gnu
-#   ubuntu-24.04-arm -> aarch64-unknown-linux-gnu
-#
-# Usage:
-#   git tag v0.1.0 && git push origin v0.1.0
-
 on:
   push:
     tags:
@@ -24,11 +15,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - runner: macos-14
+          - runner: macos-latest
             target: aarch64-apple-darwin
-          - runner: ubuntu-24.04
+          - runner: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-          - runner: ubuntu-24.04-arm
+          - runner: ubuntu-26.04-arm
             target: aarch64-unknown-linux-gnu
     runs-on: ${{ matrix.runner }}
     steps:
@@ -37,7 +28,7 @@ jobs:
       - name: Install Rust (stable, minimal profile)
         uses: dtolnay/rust-toolchain@e2a55d2ffb04f378e9626c28d38b36d230d1e12f # master
         with:
-          toolchain: stable
+          toolchain: stable 7 days ago
 
       - name: Show native context
         run: |
@@ -119,3 +110,20 @@ jobs:
         with:
           files: dist/*
           generate_release_notes: true
+
+  update:
+    name: Update Homebrew Tap
+    needs: publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Homebrew tap autobump
+        env:
+          UPDATE_TOKEN: ${{ secrets.UPDATE_TOKEN }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          GH_TOKEN="$UPDATE_TOKEN" gh api \
+            --method POST \
+            "repos/$REPOSITORY_OWNER/homebrew-tap/actions/workflows/autobump.yml/dispatches" \
+            -f ref=main
