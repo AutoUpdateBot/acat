@@ -69,17 +69,6 @@ acat --help
 | Linux | x86_64 (baseline, runs on any 64-bit Intel/AMD CPU) | `x86_64-unknown-linux-gnu` | `ubuntu-latest` |
 | Linux | ARM64 (Pi, Graviton, Ampere…) | `aarch64-unknown-linux-gnu` | `ubuntu-26.04-arm` |
 
-## Release
-
-Push a tag; `release.yml` (in `.github/workflows`) builds natively on all
-three runners, verifies each binary matches its target triple, packages
-`acat-<tag>-<target>.tar.gz` with SHA-256 checksums, and publishes
-everything to a single GitHub Release:
-
-```sh
-git tag v0.2.0 && git push origin v0.2.0
-```
-
 ## Credits
 
 Highlighting grammars: Sublime Text syntax definitions via
