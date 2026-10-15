@@ -1,6 +1,6 @@
 [package]
 name = "acat"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 description = "Ultra-lightweight syntax-highlighted cat replacement for macOS (ARM64) and 64-bit Linux (x86_64, ARM64)"
 license = "MIT"
