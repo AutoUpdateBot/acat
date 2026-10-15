@@ -19,7 +19,7 @@ jobs:
       - name: Install Rust (stable, minimal)
         uses: dtolnay/rust-toolchain@e2a55d2ffb04f378e9626c28d38b36d230d1e12f # master
         with:
-          toolchain: stable
+          toolchain: stable 7 days ago
 
       - name: Unit tests (lexer, CLI parsing)
         run: cargo test --locked --all-targets
